@@ -1,0 +1,17 @@
+'''
+Take a quick look at the data
+'''
+
+import glob
+
+def get_files():
+    f = glob.glob('./data/*.txt')
+    return f
+
+
+
+if __name__=="__main__":
+
+    files = get_files()    
+    #data = get_data()
+    print files
