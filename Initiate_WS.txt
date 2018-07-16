@@ -2,7 +2,14 @@ Step 0: Enable SSH and SPI
 --------
 In settings enable SSH and SPI
 
-Step 1: Set static IP
+
+Step 1: update everything
+--------
+sudo apt update
+sudo apt-get update
+sudo apt-get install emacs
+
+Step 2: Set static IP
 --------
 
 edit /etc/dhcpcd.conf
@@ -10,18 +17,6 @@ Add the following to the bottom:
 
 interface wlan0
 inform 192.168.1.110
-#static routers=192.168.0.1
-#static domain_name_servers=8.8.8.8 8.8.4.4
-
-#interface eth0
-#inform 192.168.0.10
-#static domain_name_servers=8.8.8.8 8.8.4.4
-#static routers=192.168.0.1
-
-Step 2: update everything
---------
-
-sudo apt-get update
 
 Step 3: install git
 --------
@@ -30,8 +25,8 @@ sudo apt-get install git
 Step 4: Clone git directory
 --------
 cd Desktop
-git --config -- global user.name "heikoheilgendorff"
-git --config --global user.email "heikoheilgendorff heikoheilgendorff@users.noreply.github.com"
+git config --global user.name "heikoheilgendorff"
+git config --global user.email "heikoheilgendorff heikoheilgendorff@users.noreply.github.com"
 git clone https://github.com/heikoheilgendorff/Weather_Station.git
 
 Step 5: Run prep-system.sh
