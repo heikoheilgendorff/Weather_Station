@@ -10,8 +10,6 @@
 #Install the "basics"
 sudo apt-get install build-essential python-dev python-smbus python-rpi.gpio gpsd gpsd-clients python-gps rrdtool
 
-# Install Emacs
-sudo apt-get install emacs24
 #Supporting libraries
 sudo apt-get install php5 php5-dev php-pear libyaml-dev python-rrdtool php5-rrd
 sudo pecl install yaml-0.6.3
