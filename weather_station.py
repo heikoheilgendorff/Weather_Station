@@ -1,10 +1,10 @@
 '''
 Weather station:
         One script to rule them all...
-HMH - 19/13/2018
+HMH - 18/07/2018
 '''
 
-import sys,time
+import sys,time,os
 import Adafruit_DHT
 import numpy as np
 from gpiozero import DigitalInputDevice
@@ -101,12 +101,13 @@ def dust_helper():
 
 if __name__=="__main__":
 
+    myname = os.uname()[1]
     try:
         # Send email to let human know I'm alive
         sendemail(from_addr = 'oddweatherstation@gmail.com',
                   to_addr_list = ['heiko@opendata.durban'],
                   subject = 'System has restarted',
-                  message = 'Weather station one has rebooted and the script is running!',
+                  message = 'Weather station '+myname+' has rebooted and the script is running!',
                   login = 'oddweatherstation',
                   password = 'winteriscoming')
     except:
@@ -154,7 +155,7 @@ if __name__=="__main__":
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
                                   to_addr_list = ['heiko@opendata.durban'],
                                   subject = 'Temperature sensor down',
-                                  message = 'Weather station one temperature gauge is not working',
+                                  message = 'Weather station '+myname+' temperature gauge is not working',
                                   login = 'oddweatherstation',
                                   password = 'winteriscoming')
                         Temp_flag = 1
@@ -174,7 +175,7 @@ if __name__=="__main__":
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
                                   to_addr_list = ['heiko@opendata.durban'],
                                   subject = 'Gas sensor down',
-                                  message = 'Weather station one gas gauge is not working',
+                                  message = 'Weather station '+myname+' gas gauge is not working',
                                   login = 'oddweatherstation',
                                   password = 'winteriscoming')
                         Gas_flag = 1
@@ -196,7 +197,7 @@ if __name__=="__main__":
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
                                   to_addr_list = ['heiko@opendata.durban'],
                                   subject = 'Dust sensor down',
-                                  message = 'Weather station one dust gauge is not working',
+                                  message = 'Weather station '+myname+' dust gauge is not working',
                                   login = 'oddweatherstation',
                                   password = 'winteriscoming')
                         Dust_flag = 1
@@ -217,7 +218,7 @@ if __name__=="__main__":
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
                                   to_addr_list = ['heiko@opendata.durban'],
                                   subject = 'Wind speed sensor down',
-                                  message = 'Weather station one WS gauge is not working',
+                                  message = 'Weather station '+myname+' windspeed gauge is not working',
                                   login = 'oddweatherstation',
                                   password = 'winteriscoming')
                         WS_flag = 1
@@ -242,7 +243,7 @@ if __name__=="__main__":
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
                                   to_addr_list = ['heiko@opendata.durban'],
                                   subject = 'Wind direction sensor down',
-                                  message = 'Weather station one WD gauge is not working',
+                                  message = 'Weather station '+myname+' wind direction gauge is not working',
                                   login = 'oddweatherstation',
                                   password = 'winteriscoming')
                         WD_flag = 1
