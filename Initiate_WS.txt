@@ -8,6 +8,10 @@ Step 1: update everything
 sudo apt update
 sudo apt-get update
 sudo apt-get install emacs
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get update
+
 
 Step 2: Set static IP
 --------
