@@ -36,8 +36,6 @@ def sendemail(from_addr, to_addr_list,
     server.quit()
     return problems
 
-
-
 def get_temp_hum(sensor,pin):
     t_array = np.zeros(10)
     h_array = np.zeros(10)
@@ -100,7 +98,8 @@ def dust_helper():
     return pm10,pm25
 
 if __name__=="__main__":
-
+    error_log_name = 'error_log.txt'
+    erf = open(error_log_name,'a')
     myname = os.uname()[1]
     try:
         # Send email to let human know I'm alive
@@ -110,9 +109,14 @@ if __name__=="__main__":
                   message = 'Weather station '+myname+' has rebooted and the script is running!',
                   login = 'oddweatherstation',
                   password = 'winteriscoming')
-    except:
+    except Exception as e:
         print "Gmail doesn't like the machine"
-
+        etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        erf.write(etime)
+        erf.write('\n')
+        erf.write(e)
+        erf.write('\n')
+    erf.close()    
     print "Welcome to your local weather station. Sit back, relax, and have the weather measured at you. Some of the measurements take some time, so if it looks like nothing is happening, chill for a while. If nothing continues to happen, then perhaps something strange is on your foot."
 
     # set operations flags:
@@ -133,6 +137,7 @@ if __name__=="__main__":
         file_time = datetime.datetime.fromtimestamp(timestamp).strftime('%Y_%m_%d_%H_%M_%S')
         file_name = data_loc+'data_'+file_time+'.txt'
         f = open(file_name,'a')
+        erf = open(error_log_name,'a')
         time_interval = 24*60*60 # seconds
         time_later = time.time()
 
@@ -148,8 +153,13 @@ if __name__=="__main__":
                 pin2=24
                 humidity, temperature = get_temp_hum(sensor2,pin2)
                 print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
-            except:
+            except Exception as e:
                 print 'Failed to get temperature and humidity reading'
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(e)
+                erf.write('\n')
                 if Temp_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -168,8 +178,14 @@ if __name__=="__main__":
                 gas_array = gas_helper()
                 gas = np.median(gas_array)
                 print 'Gas = {0:0.1f}'.format(gas)
-            except:
+            except Exception as e:
                 print "We have a gas issue..."
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(e)
+                erf.write('\n')
+                
                 if Gas_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -190,8 +206,13 @@ if __name__=="__main__":
                 print 'pm 2.5 = {0:0.1f}, pm 10 = {1:0.1f}'.format(pm25,pm10)
                 #print 'chilling for a while'
                 #time.sleep(300) # this can be removed once the timing is sorted out - just here for now to stop the fan spinning up every 3 seconds
-            except:
+            except Exception as e:
                 print"We are but shadows and dust, but not dust in the wind."
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(e)
+                erf.write('\n')
                 if Dust_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -211,8 +232,13 @@ if __name__=="__main__":
                 windspeed_array = windspeed_helper()
                 windspeed = np.median(windspeed_array)
                 print 'Wind={0:0.1f} kph'.format(windspeed)
-            except:
+            except Exception as e:
                 print 'Wind failed to pass'
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(e)
+                erf.write('\n')
                 if WS_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -236,8 +262,13 @@ if __name__=="__main__":
                     time.sleep(1)
                 winddir = np.mean(winddir_sample_array)
                 print 'Wind direction = {0:0.1f}'.format(winddir)
-            except:
+            except Exception as e:
                 print "the wind is lacking direction"
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(e)
+                erf.write('\n')
                 if WD_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -263,11 +294,17 @@ if __name__=="__main__":
             try:
                 r = requests.post("http://citizen-sensors.herokuapp.com/ewok-village-5000", data=json.dumps(payload),headers=headers)
    
-            except:
+            except Exception as e:
                 print "Server not listening to me - no one ever listens to me!!!"
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(e)
+                erf.write('\n')
             
             time.sleep(10)
             time_later = time.time()
             
             
         f.close()
+        erf.close()
