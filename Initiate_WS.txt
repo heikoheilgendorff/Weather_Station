@@ -1,6 +1,7 @@
 Step 0: Enable SSH and SPI
 --------
 In settings enable SSH and SPI
+Set hostname: sudo raspi-config
 
 
 Step 1: update everything
