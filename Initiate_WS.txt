@@ -1,3 +1,5 @@
+https://github.com/heikoheilgendorff/Weather_Station.git
+
 Step 0: Enable SSH and SPI
 --------
 In settings enable SSH and SPI
