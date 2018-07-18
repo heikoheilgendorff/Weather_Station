@@ -14,7 +14,7 @@ sudo apt-get install build-essential python-dev python-smbus python-rpi.gpio gps
 sudo apt-get install php5 php5-dev php-pear libyaml-dev python-rrdtool php5-rrd
 sudo pecl install yaml-0.6.3
 sudo apt-get install python-yaml
-python -m pip install wiringpi
+sudo python -m pip install wiringpi
 
 #other projects code:
 #git clone https://github.com/PrzemoF/bmp183.git
