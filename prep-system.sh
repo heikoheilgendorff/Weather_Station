@@ -33,3 +33,5 @@ cd ~
 # Set up port forwarding
 sudo apt-get update
 sudo apt-get install weavedconnectd
+sudo apt-get upgrade
+sudo apt-get update
