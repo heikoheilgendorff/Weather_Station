@@ -3,7 +3,7 @@ Step 0: Enable SSH and SPI
 In settings enable SSH and SPI
 Set hostname: sudo raspi-config
 sudo passwd pi
-
+set local region
 
 Step 1: update everything
 --------

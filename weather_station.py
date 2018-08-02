@@ -18,7 +18,7 @@ import datetime,requests,json
 import smtplib
 from email.mime.text import MIMEText
 import simple_read_windspeed as srw
-#import analog_read as ar
+import read_gas as rg
 import aqi
 import platform, string
 
@@ -124,6 +124,12 @@ def read_analog(numSamples,pinVal):
         GPIO.cleanup()
     return return_array
 
+def gas_helper():
+    helper = rg.GPIOHelper()
+    x = helper.readMQ135()
+    return x
+
+
 def check_connectivity():
     status = None
     while status == None:
@@ -133,6 +139,7 @@ def check_connectivity():
             status = "Connected"
         except:
             status = None
+            print "no internet connection"
             time.sleep(60)
     print status
 
@@ -223,7 +230,8 @@ if __name__=="__main__":
             # Gas
             print "Checking gas"
             try:
-                gas_array = read_analog(numSamples=10,pinVal=1)
+                gas_array = read_analog(numSamples=10,pinVal=1) # returns a voltage that can be calibrated with RS and RL etc to produce a ppm value. While uncalibrated, it simply tells you if there's a lot of pollution in the air or not. Voltage ranges from 0 - 5 V corresponding to low to high air pollution.
+                #gas_array = gas_helper()
                 gas = np.median(gas_array)
                 print 'Gas = {0:0.1f}'.format(gas)
             except Exception as e:
