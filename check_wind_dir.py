@@ -2,12 +2,14 @@
 
 
 import time
+import sys
+sys.path.insert(0, "/usr/local/lib")
 
 # Import SPI library (for hardware SPI) and MCP3008 library.
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 import RPi.GPIO as GPIO
-
+import wiringpi
 import spidev
 '''
 # Software SPI configuration:
@@ -65,6 +67,8 @@ try:
 except KeyboardInterrupt:
     GPIO.cleanup()
 
+'''
+
 
 '''
 class GPIOHelper:
@@ -72,17 +76,17 @@ class GPIOHelper:
         self.pm10Pin = 7
         self.windPin = 3
         self.mq135Pin = 1
-        self.ledPin = 18
-        self.samplingTime = 280
-        self.deltaTime = 40
-        self.sleepTime = 9680
+        #self.ledPin = 18
+        self.samplingTime = 280.0
+        self.deltaTime = 40.0
+        self.sleepTime = 9680.0
         self.spi = spidev.SpiDev()
         self.spi.open(0,0)
         
         # initialize wiringpi
         wiringpi.wiringPiSetupGpio()
-        wiringpi.pinMode(self.ledPin, 1)
-        wiringpi.digitalWrite(self.ledPin, 0) # turn LED off
+        #wiringpi.pinMode(self.ledPin, 1)
+        #wiringpi.digitalWrite(self.ledPin, 0) # turn LED off
 
 
 
@@ -121,21 +125,49 @@ class GPIOHelper:
         return gas_array
     
     def readWindVane(self):
+        #wind_vane_reading = self.readadc(self.windPin)
+        #print "wind reading: ", wind_vane_reading
         wind_vane_array = []
         for i in range(100):
             wind_vane_reading = self.readadc(self.windPin)
-            #print "wind reading: ", wind_vane_reading
+            print "wind reading: ", wind_vane_reading
             wind_vane_array.append(wind_vane_reading)
         return wind_vane_array
-            
-if __name__=="__main__":
-    helper = GPIOHelper()
-    while True:
-        wiringpi.delay(500)
-        #helper.readSharpPM10Sensor()
-        print 'smell gas'
-        helper.readMQ135()
-        print 'checking wind...'
-        #helper.readWindVane()
-        time.sleep(10)
 
+'''
+def read_analog(pinVal):
+    #Hardware SPI configuration:
+    SPI_PORT = 0
+    SPI_DEVICE = 0
+    mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+
+    # Choose GPIO pin - not actually sure if we need this, but leaving it in for meow
+    ledPin = 18
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(ledPin,GPIO.OUT)
+
+    samplingTime = 280.0
+    deltaTime = 40.0
+    sleepTime = 9680.0
+    
+    print 'checking wind direction every 3 seconds'
+    try: 
+        while True:
+            GPIO.output(ledPin,0)
+            time.sleep(samplingTime*10.0**-6)
+            # The read_adc function will get the value of the specified channel
+            voMeasured = mcp.read_adc(pinVal)
+            time.sleep(samplingTime*10.0**-6)
+            GPIO.output(ledPin,1)
+            time.sleep(samplingTime*10.0**-6)
+            calcVoltage = voMeasured*(5.0/1024)
+            print "Voltage: ", calcVoltage
+            time.sleep(3)
+
+    except KeyboardInterrupt:
+        GPIO.cleanup()
+
+if __name__=="__main__":
+    pinVal = 3
+    read_analog(pinVal)

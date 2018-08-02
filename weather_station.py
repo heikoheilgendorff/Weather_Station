@@ -4,19 +4,21 @@ Weather station:
 HMH - 18/07/2018
 '''
 
-import sys,time,os
-import Adafruit_DHT
+import sys,time,os,urllib
+import Adafruit_DHT, Adafruit_MCP3008
+import Adafruit_GPIO.SPI as SPI
+import RPi.GPIO as GPIO
+import spidev
 import numpy as np
 from gpiozero import DigitalInputDevice
 from time import sleep
-import math
-import sys  
-import subprocess
+#import math
+#import subprocess
 import datetime,requests,json
 import smtplib
 from email.mime.text import MIMEText
 import simple_read_windspeed as srw
-import analog_read as ar
+#import analog_read as ar
 import aqi
 import platform, string
 
@@ -68,16 +70,6 @@ def windspeed_helper():
     #print "value from anemometer: ",wind_array
     return wind_array
 
-def winddir_helper():
-    helper = ar.GPIOHelper()
-    x = helper.readWindVane()
-    return x
-
-def gas_helper():
-    helper = ar.GPIOHelper()
-    x = helper.readMQ135()
-    return x
-
 def dust_helper():
     pm25 = []
     pm10 = []
@@ -97,7 +89,55 @@ def dust_helper():
     #time.sleep(300)
     return pm10,pm25
 
+
+def read_analog(numSamples,pinVal):
+    #Hardware SPI configuration:
+    SPI_PORT = 0
+    SPI_DEVICE = 0
+    mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+
+    # Choose GPIO pin - not actually sure if we need this, but leaving it in for meow
+    ledPin = 18
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(ledPin,GPIO.OUT)
+
+    samplingTime = 280.0
+    deltaTime = 40.0
+    sleepTime = 9680.0
+    
+    return_array = []
+    try: 
+        for i in range(0,numSamples):
+            GPIO.output(ledPin,0)
+            time.sleep(samplingTime*10.0**-6)
+            # The read_adc function will get the value of the specified channel
+            voMeasured = mcp.read_adc(pinVal)
+            time.sleep(samplingTime*10.0**-6)
+            GPIO.output(ledPin,1)
+            time.sleep(samplingTime*10.0**-6)
+            calcVoltage = voMeasured*(5.0/1024)
+            return_array.append(calcVoltage)
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        GPIO.cleanup()
+    return return_array
+
+def check_connectivity():
+    status = None
+    while status == None:
+        try:
+            url = "https://www.google.com"
+            urllib.urlopen(url)
+            status = "Connected"
+        except:
+            status = None
+            time.sleep(60)
+    print status
+
 if __name__=="__main__":
+    check_connectivity()
     error_log_name = 'error_log.txt'
     erf = open(error_log_name,'a')
     myname = os.uname()[1]
@@ -114,10 +154,10 @@ if __name__=="__main__":
         etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         erf.write(etime)
         erf.write('\n')
-        erf.write(e)
+        erf.write(str(e))
         erf.write('\n')
     erf.close()    
-    print "Welcome to your local weather station. Sit back, relax, and have the weather measured at you. Some of the measurements take some time, so if it looks like nothing is happening, chill for a while. If nothing continues to happen, then perhaps something strange is on your foot."
+    print "Welcome to your local weather station." 
 
     # set operations flags:
     Temp_flag = 0
@@ -126,13 +166,22 @@ if __name__=="__main__":
     Gas_flag = 0
     Dust_flag = 0
 
+    # prep for wind direction stuff
+    directions = {3.84:'N',1.98:'NNE',2.25:'NE',0.41:'ENE',0.45:'E',0.32:'ESE',0.90:'SE',0.62:'SSE',1.40:'S',1.19:'SSW',3.08:'SW',2.93:'WSW',4.62:'W',4.04:'WNW',4.78:'NW',3.43:'NNW'}
+    #d = {3.84:'N',1.98:'NNE',2.25:'NE',0.41:'ENE',0.45:'E',0.32:'ESE',0.90:'SE',0.62:'SSE',1.40:'S',1.19:'SSW',3.08:'SW',2.93,4.62,4.04,4.78,3.43}
+    d = directions.keys()
+    sortd = np.sort(d)
+    midp = (sortd[1:] + sortd[:-1])/2
+    midp = np.insert(midp,0,0)
+    midp = np.insert(midp,len(midp),5.0)
+        
     data_loc = '/home/pi/Desktop/Weather_Station/data/'
     p = platform.system()
     if p == 'Windows':
         data_loc = string.replace(data_loc,'/','\\')
 
-    Zuma = 'notmypresident'
-    while Zuma == 'notmypresident': #notmypresident
+    Run = 'forever'
+    while Run == 'forever': 
         timestamp = time.time() # UTC
         file_time = datetime.datetime.fromtimestamp(timestamp).strftime('%Y_%m_%d_%H_%M_%S')
         file_name = data_loc+'data_'+file_time+'.txt'
@@ -142,11 +191,10 @@ if __name__=="__main__":
         time_later = time.time()
 
         while time_later < timestamp + time_interval:
-            
+    
             # Temperature and humidity:
             m_time = time.time()
-            print "The time is...:", m_time
-            print "Yeah... bet you can read that..."
+            print "The time is...:", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
             print "Checking temperature and humidity"
             try:
                 sensor2 = Adafruit_DHT.DHT22
@@ -158,7 +206,7 @@ if __name__=="__main__":
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
-                erf.write(e)
+                erf.write(str(e))
                 erf.write('\n')
                 if Temp_flag == 0:
                     try:
@@ -170,12 +218,12 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         Temp_flag = 1
                     except:
-                        print "Gmail doesn't like the machine"
+                        print "Failed to access Gmail"
             
             # Gas
-            print "Smelling gas"
+            print "Checking gas"
             try:
-                gas_array = gas_helper()
+                gas_array = read_analog(numSamples=10,pinVal=1)
                 gas = np.median(gas_array)
                 print 'Gas = {0:0.1f}'.format(gas)
             except Exception as e:
@@ -183,7 +231,7 @@ if __name__=="__main__":
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
-                erf.write(e)
+                erf.write(str(e))
                 erf.write('\n')
                 
                 if Gas_flag == 0:
@@ -196,22 +244,20 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         Gas_flag = 1
                     except:
-                        print "Gmail doesn't like the machine"
+                        print "Failed to access Gmail"
             # Dust
-            print "Eating dust"
+            print "Checking dust"
             try:
                 pm10_array,pm25_array = dust_helper()
                 pm10 = np.median(pm10_array) # 10 microns
                 pm25 = np.median(pm25_array) # 2.5 microns
-                print 'pm 2.5 = {0:0.1f}, pm 10 = {1:0.1f}'.format(pm25,pm10)
-                #print 'chilling for a while'
-                #time.sleep(300) # this can be removed once the timing is sorted out - just here for now to stop the fan spinning up every 3 seconds
+                print 'pm 2.5 = {0:0.1f} micro_g/m^3, pm 10 = {1:0.1f} micro_g/m^3'.format(pm25,pm10)
             except Exception as e:
-                print"We are but shadows and dust, but not dust in the wind."
+                print"Failed to measure dust."
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
-                erf.write(e)
+                erf.write(str(e))
                 erf.write('\n')
                 if Dust_flag == 0:
                     try:
@@ -223,9 +269,8 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         Dust_flag = 1
                     except:
-                        print "Gmail doesn't like the machine"
-            # Run wind stuff for 300 seconds...        
-            
+                        print "Failed to access Gmail"
+                
             # Windspeed
             print "Checking wind speed"
             try:
@@ -233,11 +278,11 @@ if __name__=="__main__":
                 windspeed = np.median(windspeed_array)
                 print 'Wind={0:0.1f} kph'.format(windspeed)
             except Exception as e:
-                print 'Wind failed to pass'
+                print 'Failed to detect windspeed'
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
-                erf.write(e)
+                erf.write(str(e))
                 erf.write('\n')
                 if WS_flag == 0:
                     try:
@@ -249,25 +294,33 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         WS_flag = 1
                     except:
-                        print "Gmail doesn't like the machine"
-                        
+                        print "Failed to access Gmail"
+    
             # Wind Direction
             print "Checking wind direction"
-            winddir_sample_array = []
             try:
-                for i in range(0,59):
-                    winddir_array = winddir_helper()
-                    winddir_sample = np.median(winddir_array)
-                    winddir_sample_array.append(winddir_sample)
-                    time.sleep(1)
-                winddir = np.mean(winddir_sample_array)
-                print 'Wind direction = {0:0.1f}'.format(winddir)
+                wind_dir_array = read_analog(numSamples=10,pinVal=3)
+                windval = np.median(wind_dir_array)
+                c = round(windval,2)
+                for i in range(1,len(midp)-1):
+                    beg = midp[i-1]
+                    end = midp[i+1]
+                    if c > 3.90 and c < 3.95: # mechanical glitch
+                        direction = 4.78
+                        break
+                    elif c > beg and c < end:
+                        direction = sortd[i]
+                        break
+                    
+                
+                winddir = directions.get(direction)
+                print 'Wind direction = {0:0.1f}'.format(windval), winddir
             except Exception as e:
-                print "the wind is lacking direction"
+                print "Failed to measure wind direction"
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
-                erf.write(e)
+                erf.write(str(e))
                 erf.write('\n')
                 if WD_flag == 0:
                     try:
@@ -279,7 +332,7 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         WD_flag = 1
                     except:
-                        print "Gmail doesn't like the machine"
+                        print "Failed to access Gmail"
             
             print 'recording data'
             line = str(temperature)+','+str(humidity)+','+str(windspeed)+','+str(winddir)+','+str(gas)+','+str(pm10)+','+str(pm25)+','+str(m_time)
@@ -299,7 +352,7 @@ if __name__=="__main__":
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
-                erf.write(e)
+                erf.write(str(e))
                 erf.write('\n')
             
             time.sleep(10)
