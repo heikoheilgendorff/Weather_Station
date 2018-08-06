@@ -76,6 +76,7 @@ def dust_helper():
     aqi.cmd_set_sleep(0)
     aqi.cmd_set_mode(1);
     for t in range(15):
+        print 'getting dust reading number ',t
         values = aqi.cmd_query_data();
         if values is not None:
             pm25.append(values[0])
@@ -192,7 +193,6 @@ if __name__=="__main__":
         timestamp = time.time() # UTC
         file_time = datetime.datetime.fromtimestamp(timestamp).strftime('%Y_%m_%d_%H_%M_%S')
         file_name = data_loc+'data_'+file_time+'.txt'
-        f = open(file_name,'a')
         time_interval = 24*60*60 # seconds
         time_later = time.time()
 
@@ -356,11 +356,13 @@ if __name__=="__main__":
                         print "Failed to access Gmail"
             
             print 'recording data'
+            f = open(file_name,'a')
             line = str(temperature)+','+str(humidity)+','+str(windspeed)+','+str(winddir)+','+str(gas)+','+str(pm10)+','+str(pm25)+','+str(m_time)
             
             f.write(line)
             f.write('\n')
-
+            f.close()
+            
             print 'talking to server'
             # post to the village
             payload = {'temp': temperature,'humid':humidity,'rain' : 0.0, 'press': 0.0}
@@ -381,5 +383,5 @@ if __name__=="__main__":
             time_later = time.time()
             
             
-        f.close()
+
 
