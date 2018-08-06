@@ -75,7 +75,7 @@ def dust_helper():
     pm10 = []
     aqi.cmd_set_sleep(0)
     aqi.cmd_set_mode(1);
-    for t in range(15):
+    for t in range(1,15):
         print 'getting dust reading number ',t
         values = aqi.cmd_query_data();
         if values is not None:
