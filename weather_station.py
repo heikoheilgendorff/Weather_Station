@@ -307,6 +307,7 @@ if __name__=="__main__":
             # Wind Direction
             print "Checking wind direction"
             try:
+                direction = None
                 wind_dir_array = read_analog(numSamples=10,pinVal=3)
                 windval = np.median(wind_dir_array)
                 c = round(windval,2)
@@ -320,8 +321,10 @@ if __name__=="__main__":
                         direction = sortd[i]
                         break
                     
-                
-                winddir = directions.get(direction)
+                if direction != None:
+                    winddir = directions.get(direction)
+                else:
+                    winddir = 'None'
                 print 'Wind direction = {0:0.1f}'.format(windval), winddir
             except Exception as e:
                 print "Failed to measure wind direction"
