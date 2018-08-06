@@ -81,7 +81,10 @@ def dust_helper():
         if values is not None:
             pm25.append(values[0])
             pm10.append(values[1])
-            time.sleep(2)
+        else:
+            print 'values is none'
+            print pm25
+        time.sleep(2)
     #print pm10
     #print pm25
     #print("Going to sleep for 5min...")
@@ -147,6 +150,12 @@ def check_connectivity():
 if __name__=="__main__":
     check_connectivity()
     error_log_name = 'error_log.txt'
+    erf = open(error_log_name,'a+')
+    etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+    eline = 'Error log for '+etime
+    erf.write(eline)
+    erf.write('\n')
+    erf.close()
     myname = os.uname()[1]
     try:
         # Send email to let human know I'm alive
