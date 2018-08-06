@@ -75,15 +75,16 @@ def dust_helper():
     pm10 = []
     aqi.cmd_set_sleep(0)
     aqi.cmd_set_mode(1);
-    for t in range(1,15):
+    for t in range(15):
         print 'getting dust reading number ',t
         values = aqi.cmd_query_data();
-        if values is not None:
+        print np.shape(values)
+        try:
             pm25.append(values[0])
             pm10.append(values[1])
-        else:
+        except:
             print 'values is none'
-            print pm25
+            
         time.sleep(2)
     #print pm10
     #print pm25
