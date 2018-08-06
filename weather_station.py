@@ -146,7 +146,6 @@ def check_connectivity():
 if __name__=="__main__":
     check_connectivity()
     error_log_name = 'error_log.txt'
-    erf = open(error_log_name,'a')
     myname = os.uname()[1]
     try:
         # Send email to let human know I'm alive
@@ -158,12 +157,13 @@ if __name__=="__main__":
                   password = 'winteriscoming')
     except Exception as e:
         print "Gmail doesn't like the machine"
+        erf = open(error_log_name,'a')
         etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         erf.write(etime)
         erf.write('\n')
         erf.write(str(e))
         erf.write('\n')
-    erf.close()    
+        erf.close()    
     print "Welcome to your local weather station." 
 
     # set operations flags:
@@ -193,7 +193,6 @@ if __name__=="__main__":
         file_time = datetime.datetime.fromtimestamp(timestamp).strftime('%Y_%m_%d_%H_%M_%S')
         file_name = data_loc+'data_'+file_time+'.txt'
         f = open(file_name,'a')
-        erf = open(error_log_name,'a')
         time_interval = 24*60*60 # seconds
         time_later = time.time()
 
@@ -210,11 +209,13 @@ if __name__=="__main__":
                 print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
             except Exception as e:
                 print 'Failed to get temperature and humidity reading'
+                erf = open(error_log_name,'a')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
                 erf.write(str(e))
                 erf.write('\n')
+                erf.close()
                 if Temp_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -236,12 +237,13 @@ if __name__=="__main__":
                 print 'Gas = {0:0.1f}'.format(gas)
             except Exception as e:
                 print "We have a gas issue..."
+                erf = open(error_log_name,'a')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
                 erf.write(str(e))
                 erf.write('\n')
-                
+                erf.close()
                 if Gas_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -264,11 +266,13 @@ if __name__=="__main__":
             except Exception as e:
                 print"Failed to measure dust."
                 print e
+                erf = open(error_log_name,'a')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
                 erf.write(str(e))
                 erf.write('\n')
+                erf.close()
                 if Dust_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -289,11 +293,13 @@ if __name__=="__main__":
                 print 'Wind={0:0.1f} kph'.format(windspeed)
             except Exception as e:
                 print 'Failed to detect windspeed'
+                erf = open(error_log_name,'a')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
                 erf.write(str(e))
                 erf.write('\n')
+                erf.close()
                 if WS_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -330,11 +336,13 @@ if __name__=="__main__":
                 print 'Wind direction = {0:0.1f}'.format(windval), winddir
             except Exception as e:
                 print "Failed to measure wind direction"
+                erf = open(error_log_name,'a')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
                 erf.write(str(e))
                 erf.write('\n')
+                erf.close()
                 if WD_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -362,15 +370,16 @@ if __name__=="__main__":
    
             except Exception as e:
                 print "Server not listening to me - no one ever listens to me!!!"
+                erf = open(error_log_name,'a')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
                 erf.write(str(e))
                 erf.write('\n')
-            
+                erf.close()
             time.sleep(10)
             time_later = time.time()
             
             
         f.close()
-        erf.close()
+
