@@ -260,8 +260,10 @@ if __name__=="__main__":
                 pm10 = np.median(pm10_array) # 10 microns
                 pm25 = np.median(pm25_array) # 2.5 microns
                 print 'pm 2.5 = {0:0.1f} micro_g/m^3, pm 10 = {1:0.1f} micro_g/m^3'.format(pm25,pm10)
+                
             except Exception as e:
                 print"Failed to measure dust."
+                print e
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
