@@ -158,7 +158,7 @@ if __name__=="__main__":
                   password = 'winteriscoming')
     except Exception as e:
         print "Gmail doesn't like the machine"
-        erf = open(error_log_name,'a')
+        erf = open(error_log_name,'a+')
         etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         erf.write(etime)
         erf.write('\n')
@@ -209,7 +209,7 @@ if __name__=="__main__":
                 print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
             except Exception as e:
                 print 'Failed to get temperature and humidity reading'
-                erf = open(error_log_name,'a')
+                erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
@@ -237,7 +237,7 @@ if __name__=="__main__":
                 print 'Gas = {0:0.1f}'.format(gas)
             except Exception as e:
                 print "We have a gas issue..."
-                erf = open(error_log_name,'a')
+                erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
@@ -266,7 +266,7 @@ if __name__=="__main__":
             except Exception as e:
                 print"Failed to measure dust."
                 print e
-                erf = open(error_log_name,'a')
+                erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
@@ -293,7 +293,7 @@ if __name__=="__main__":
                 print 'Wind={0:0.1f} kph'.format(windspeed)
             except Exception as e:
                 print 'Failed to detect windspeed'
-                erf = open(error_log_name,'a')
+                erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
@@ -336,7 +336,7 @@ if __name__=="__main__":
                 print 'Wind direction = {0:0.1f}'.format(windval), winddir
             except Exception as e:
                 print "Failed to measure wind direction"
-                erf = open(error_log_name,'a')
+                erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
@@ -356,7 +356,7 @@ if __name__=="__main__":
                         print "Failed to access Gmail"
             
             print 'recording data'
-            f = open(file_name,'a')
+            f = open(file_name,'a+')
             line = str(temperature)+','+str(humidity)+','+str(windspeed)+','+str(winddir)+','+str(gas)+','+str(pm10)+','+str(pm25)+','+str(m_time)
             
             f.write(line)
@@ -372,7 +372,7 @@ if __name__=="__main__":
    
             except Exception as e:
                 print "Server not listening to me - no one ever listens to me!!!"
-                erf = open(error_log_name,'a')
+                erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
                 erf.write('\n')
