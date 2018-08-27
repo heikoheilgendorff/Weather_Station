@@ -158,6 +158,7 @@ if __name__=="__main__":
     erf.write('\n')
     erf.close()
     myname = os.uname()[1]
+    '''
     try:
         # Send email to let human know I'm alive
         sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -174,9 +175,10 @@ if __name__=="__main__":
         erf.write('\n')
         erf.write(str(e))
         erf.write('\n')
-        erf.close()    
+        erf.close()
+    '''
     print "Welcome to your local weather station." 
-
+    
     # set operations flags:
     Temp_flag = 0
     WS_flag = 0
@@ -206,6 +208,24 @@ if __name__=="__main__":
         time_interval = 24*60*60 # seconds
         time_later = time.time()
 
+        try:
+            # Send email to let human know I'm alive
+            sendemail(from_addr = 'oddweatherstation@gmail.com',
+                  to_addr_list = ['heiko@opendata.durban'],
+                  subject = 'System has restarted',
+                  message = 'Weather station '+myname+' has rebooted and the script is running! Recording data to '+file_name+'.',
+                  login = 'oddweatherstation',
+                  password = 'winteriscoming')
+        except Exception as e:
+            print "Gmail doesn't like the machine"
+            erf = open(error_log_name,'a+')
+            etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            erf.write(etime)
+            erf.write('\n')
+            erf.write(str(e))
+            erf.write('\n')
+            erf.close()    
+        
         while time_later < timestamp + time_interval:
     
             # Temperature and humidity:
