@@ -179,13 +179,6 @@ if __name__=="__main__":
     '''
     print "Welcome to your local weather station." 
     
-    # set operations flags:
-    Temp_flag = 0
-    WS_flag = 0
-    WD_flag = 0
-    Gas_flag = 0
-    Dust_flag = 0
-
     # prep for wind direction stuff
     directions = {3.84:'N',1.98:'NNE',2.25:'NE',0.41:'ENE',0.45:'E',0.32:'ESE',0.90:'SE',0.62:'SSE',1.40:'S',1.19:'SSW',3.08:'SW',2.93:'WSW',4.62:'W',4.04:'WNW',4.78:'NW',3.43:'NNW'}
     #d = {3.84:'N',1.98:'NNE',2.25:'NE',0.41:'ENE',0.45:'E',0.32:'ESE',0.90:'SE',0.62:'SSE',1.40:'S',1.19:'SSW',3.08:'SW',2.93,4.62,4.04,4.78,3.43}
@@ -207,6 +200,13 @@ if __name__=="__main__":
         file_name = data_loc+'data_'+file_time+'.txt'
         time_interval = 24*60*60 # seconds
         time_later = time.time()
+
+        # set operations flags:
+        Temp_flag = 0
+        WS_flag = 0
+        WD_flag = 0
+        Gas_flag = 0
+        Dust_flag = 0
 
         try:
             # Send email to let human know I'm alive
