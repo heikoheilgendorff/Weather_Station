@@ -52,3 +52,20 @@ sudo crontab -e
 @reboot sh /home/pi/Desktop/Weather_Station/run_weatherstation.sh >> /home/pi/Desktop/Weather_Station/cronlog 2>&1
 
 remember to leave a blank line...
+
+Step 8: Set open file limits
+-------
+
+sudo emacs /etc/security/limits.conf
+
+add the following at the bottom:
+
+*         hard    nofile      500000
+*         soft    nofile      500000
+root      hard    nofile      500000
+root      soft    nofile      500000
+
+then reboot
+
+to check:
+type <ulimits -Sn> for soft limits, Hn for hard limits
