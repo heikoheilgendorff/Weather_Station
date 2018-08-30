@@ -76,9 +76,9 @@ def dust_helper():
     aqi.cmd_set_sleep(0)
     aqi.cmd_set_mode(1);
     for t in range(15):
-        print 'getting dust reading number ',t
+        #print 'getting dust reading number ',t
         values = aqi.cmd_query_data();
-        print np.shape(values)
+        #print np.shape(values)
         try:
             pm25.append(values[0])
             pm10.append(values[1])
@@ -137,7 +137,8 @@ def gas_helper():
 
 def check_connectivity():
     status = None
-    while status == None:
+    for i in range(0,10):
+        print 'connectivity check attempt: ',i
         try:
             url = "https://www.google.com"
             urllib.urlopen(url)
@@ -146,37 +147,30 @@ def check_connectivity():
             status = None
             print "no internet connection"
             time.sleep(60)
+            if status == "Connected":
+                break
     print status
 
 if __name__=="__main__":
     check_connectivity()
-    error_log_name = 'error_log.txt'
+    data_loc = '/home/pi/Desktop/Weather_Station/data/'
+    p = platform.system()
+    if p == 'Windows':
+        data_loc = string.replace(data_loc,'/','\\')
+        
+    error_log_name = data_loc+'error_log.txt'
     erf = open(error_log_name,'a+')
     etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
     eline = 'Error log for '+etime
+    erf.write('---------------------------------------------')
+    erf.write('\n')
     erf.write(eline)
+    erf.write('\n')
+    erf.write('---------------------------------------------')
     erf.write('\n')
     erf.close()
     myname = os.uname()[1]
-    '''
-    try:
-        # Send email to let human know I'm alive
-        sendemail(from_addr = 'oddweatherstation@gmail.com',
-                  to_addr_list = ['heiko@opendata.durban'],
-                  subject = 'System has restarted',
-                  message = 'Weather station '+myname+' has rebooted and the script is running!',
-                  login = 'oddweatherstation',
-                  password = 'winteriscoming')
-    except Exception as e:
-        print "Gmail doesn't like the machine"
-        erf = open(error_log_name,'a+')
-        etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        erf.write(etime)
-        erf.write('\n')
-        erf.write(str(e))
-        erf.write('\n')
-        erf.close()
-    '''
+
     print "Welcome to your local weather station." 
     
     # prep for wind direction stuff
@@ -188,11 +182,6 @@ if __name__=="__main__":
     midp = np.insert(midp,0,0)
     midp = np.insert(midp,len(midp),5.0)
         
-    data_loc = '/home/pi/Desktop/Weather_Station/data/'
-    p = platform.system()
-    if p == 'Windows':
-        data_loc = string.replace(data_loc,'/','\\')
-
     Run = 'forever'
     while Run == 'forever': 
         timestamp = time.time() # UTC
@@ -217,7 +206,7 @@ if __name__=="__main__":
                   login = 'oddweatherstation',
                   password = 'winteriscoming')
         except Exception as e:
-            print "Gmail doesn't like the machine"
+            print "ERROR: Gmail doesn't like the machine"
             erf = open(error_log_name,'a+')
             etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
             erf.write(etime)
@@ -236,9 +225,13 @@ if __name__=="__main__":
                 sensor2 = Adafruit_DHT.DHT22
                 pin2=24
                 humidity, temperature = get_temp_hum(sensor2,pin2)
+                temp_time = time.time()
                 print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
             except Exception as e:
-                print 'Failed to get temperature and humidity reading'
+                print '---------------------------------------------'
+                print 'ERROR: Failed to get temperature and humidity reading'
+                print e
+                print '---------------------------------------------'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
@@ -256,7 +249,7 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         Temp_flag = 1
                     except:
-                        print "Failed to access Gmail"
+                        print "ERROR: Failed to access Gmail"
             
             # Gas
             print "Checking gas"
@@ -264,9 +257,13 @@ if __name__=="__main__":
                 gas_array = read_analog(numSamples=10,pinVal=1) # returns a voltage that can be calibrated with RS and RL etc to produce a ppm value. While uncalibrated, it simply tells you if there's a lot of pollution in the air or not. Voltage ranges from 0 - 5 V corresponding to low to high air pollution.
                 #gas_array = gas_helper()
                 gas = np.median(gas_array)
+                gas_time = time.time()
                 print 'Gas = {0:0.1f}'.format(gas)
             except Exception as e:
-                print "We have a gas issue..."
+                print '---------------------------------------------'
+                print "ERROR: We have a gas issue..."
+                print e
+                print '---------------------------------------------'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
@@ -284,18 +281,21 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         Gas_flag = 1
                     except:
-                        print "Failed to access Gmail"
+                        print "ERROR: Failed to access Gmail"
             # Dust
             print "Checking dust"
             try:
                 pm10_array,pm25_array = dust_helper()
                 pm10 = np.median(pm10_array) # 10 microns
                 pm25 = np.median(pm25_array) # 2.5 microns
+                dust_time = time.time()
                 print 'pm 2.5 = {0:0.1f} micro_g/m^3, pm 10 = {1:0.1f} micro_g/m^3'.format(pm25,pm10)
                 
             except Exception as e:
-                print"Failed to measure dust."
+                print '---------------------------------------------'
+                print"ERROR: Failed to measure dust."
                 print e
+                print '---------------------------------------------'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
@@ -313,16 +313,20 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         Dust_flag = 1
                     except:
-                        print "Failed to access Gmail"
+                        print "ERROR: Failed to access Gmail"
                 
             # Windspeed
             print "Checking wind speed"
             try:
                 windspeed_array = windspeed_helper()
                 windspeed = np.median(windspeed_array)
+                windspeed_time = time.time()
                 print 'Wind={0:0.1f} kph'.format(windspeed)
             except Exception as e:
-                print 'Failed to detect windspeed'
+                print '---------------------------------------------'
+                print 'ERROR: Failed to detect windspeed'
+                print e
+                print '---------------------------------------------'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
@@ -340,7 +344,7 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         WS_flag = 1
                     except:
-                        print "Failed to access Gmail"
+                        print "ERROR: Failed to access Gmail"
     
             # Wind Direction
             print "Checking wind direction"
@@ -364,8 +368,12 @@ if __name__=="__main__":
                 else:
                     winddir = 'None'
                 print 'Wind direction = {0:0.1f}'.format(windval), winddir
+                winddir_time = time.time()
             except Exception as e:
-                print "Failed to measure wind direction"
+                print '---------------------------------------------'
+                print "ERROR: Failed to measure wind direction"
+                print e
+                print '---------------------------------------------'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
@@ -383,11 +391,11 @@ if __name__=="__main__":
                                   password = 'winteriscoming')
                         WD_flag = 1
                     except:
-                        print "Failed to access Gmail"
+                        print "ERROR: Failed to access Gmail"
             
             print 'recording data'
             f = open(file_name,'a+')
-            line = str(temperature)+','+str(humidity)+','+str(windspeed)+','+str(winddir)+','+str(gas)+','+str(pm10)+','+str(pm25)+','+str(m_time)
+            line = str(temperature)+','+str(temp_time)+','+str(humidity)+','+str(temp_time)+','+str(windspeed)+','+str(windspeed_time)+','+str(winddir)+','+str(winddir_time)+','+str(gas)+','+str(gas_time)+','+str(pm10)+','+str(dust_time)+','+str(pm25)+','+str(dust_time)
             
             f.write(line)
             f.write('\n')
@@ -395,7 +403,7 @@ if __name__=="__main__":
             
             print 'talking to server'
             # post to the village
-            payload = {'temp': temperature,'humid':humidity,'rain' : 0.0, 'press': 0.0}
+            payload = {'temp': temperature,'temp_time':temp_time,'humid':humidity,'temp_time':temp_time,'winds':windspeed,'winds_time':windspeed_time,'windd':winddir,'windd_time':winddir_time,'gas':gas,'gas_time':gas_time,'pm10':pm10,'dust_time':dust_time,'pm25':pm25,'dust_time':dust_time,'ID':myname}
             headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
             try:
                 r = requests.post("http://citizen-sensors.herokuapp.com/ewok-village-5000", data=json.dumps(payload),headers=headers)
@@ -410,6 +418,7 @@ if __name__=="__main__":
                 erf.write('\n')
                 erf.close()
             time.sleep(10)
+            
             time_later = time.time()
             
             
