@@ -68,4 +68,4 @@ root      soft    nofile      500000
 then reboot
 
 to check:
-type <ulimits -Sn> for soft limits, Hn for hard limits
+type <ulimit -Sn> for soft limits, Hn for hard limits
