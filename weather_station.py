@@ -317,6 +317,9 @@ if __name__=="__main__":
                 
             # Windspeed
             print "Checking wind speed"
+            '''
+            Note: this sometimes fails after a while. We need to make sure that if it fails, we still wait for a while, otherwise all the other sensors work too much...
+            '''
             try:
                 windspeed_array = windspeed_helper()
                 windspeed = np.median(windspeed_array)
@@ -326,7 +329,8 @@ if __name__=="__main__":
                 print '---------------------------------------------'
                 print 'ERROR: Failed to detect windspeed'
                 print e
-                print '---------------------------------------------'
+                print '---------------------------------------------
+'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
@@ -334,6 +338,7 @@ if __name__=="__main__":
                 erf.write(str(e))
                 erf.write('\n')
                 erf.close()
+                time.sleep(4*60)
                 if WS_flag == 0:
                     try:
                         sendemail(from_addr = 'oddweatherstation@gmail.com',
