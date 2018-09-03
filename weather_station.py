@@ -218,8 +218,24 @@ if __name__=="__main__":
         while time_later < timestamp + time_interval:
 
             if Error_count > 10:
-                
-
+                try:
+                    # Send email to let human know I'm alive
+                    sendemail(from_addr = 'oddweatherstation@gmail.com',
+                              to_addr_list = ['heiko@opendata.durban'],
+                              subject = 'System has restarted',
+                              message = 'Weather station '+myname+' has reached its max error count and will reboot.',
+                              login = 'oddweatherstation',
+                              password = 'winteriscoming')
+                except Exception as e:
+                    print "ERROR: Gmail doesn't like the machine"
+                    erf = open(error_log_name,'a+')
+                    etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                    erf.write(etime)
+                    erf.write('\n')
+                    erf.write(str(e))
+                    erf.write('\n')
+                    erf.close()    
+                os.system('sudo reboot')
             
             # Temperature and humidity:
             m_time = time.time()
