@@ -432,7 +432,7 @@ if __name__=="__main__":
             
             print 'talking to server'
             # post to the village
-            payload = {'temp': temperature,'temp_time':temp_time,'humid':humidity,'temp_time':temp_time,'winds':windspeed,'winds_time':windspeed_time,'windd':winddir,'windd_time':winddir_time,'gas':gas,'gas_time':gas_time,'pm10':pm10,'dust_time':dust_time,'pm25':pm25,'dust_time':dust_time,'ID':myname}
+            payload = {'temp': temperature,'temp_time':temp_time,'humid':humidity,'temp_time':temp_time,'wind_speed':windspeed,'winds_time':windspeed_time,'wind_dir':winddir,'windd_time':winddir_time,'gas':gas,'gas_time':gas_time,'pm_10':pm10,'dust_time':dust_time,'pm_25':pm25,'dust_time':dust_time,'ID':myname}
             headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
             try:
                 r = requests.post("http://citizen-sensors.herokuapp.com/ewok-village-5000", data=json.dumps(payload),headers=headers)
