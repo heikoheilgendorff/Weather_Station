@@ -143,12 +143,12 @@ def check_connectivity():
             url = "https://www.google.com"
             urllib.urlopen(url)
             status = "Connected"
+            if status == "Connected":
+                break
         except:
             status = None
             print "no internet connection"
             time.sleep(60)
-            if status == "Connected":
-                break
     print status
 
 if __name__=="__main__":
@@ -241,7 +241,7 @@ if __name__=="__main__":
             m_time = time.time()
             print "The time is...:", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
             print "Checking temperature and humidity"
-            try:
+            try:                
                 sensor2 = Adafruit_DHT.DHT22
                 pin2=24
                 humidity, temperature = get_temp_hum(sensor2,pin2)
@@ -353,8 +353,7 @@ if __name__=="__main__":
                 print '---------------------------------------------'
                 print 'ERROR: Failed to detect windspeed'
                 print e
-                print '---------------------------------------------
-'
+                print '---------------------------------------------'
                 erf = open(error_log_name,'a+')
                 etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
                 erf.write(etime)
