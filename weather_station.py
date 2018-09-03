@@ -196,7 +196,7 @@ if __name__=="__main__":
         WD_flag = 0
         Gas_flag = 0
         Dust_flag = 0
-
+        Error_count = 0
         try:
             # Send email to let human know I'm alive
             sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -214,9 +214,13 @@ if __name__=="__main__":
             erf.write(str(e))
             erf.write('\n')
             erf.close()    
-        
+            
         while time_later < timestamp + time_interval:
-    
+
+            if Error_count > 10:
+                
+
+            
             # Temperature and humidity:
             m_time = time.time()
             print "The time is...:", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -228,6 +232,7 @@ if __name__=="__main__":
                 temp_time = time.time()
                 print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
             except Exception as e:
+                Error_count += 1
                 print '---------------------------------------------'
                 print 'ERROR: Failed to get temperature and humidity reading'
                 print e
@@ -260,6 +265,7 @@ if __name__=="__main__":
                 gas_time = time.time()
                 print 'Gas = {0:0.1f}'.format(gas)
             except Exception as e:
+                Error_count += 1
                 print '---------------------------------------------'
                 print "ERROR: We have a gas issue..."
                 print e
@@ -292,6 +298,7 @@ if __name__=="__main__":
                 print 'pm 2.5 = {0:0.1f} micro_g/m^3, pm 10 = {1:0.1f} micro_g/m^3'.format(pm25,pm10)
                 
             except Exception as e:
+                Error_count += 1
                 print '---------------------------------------------'
                 print"ERROR: Failed to measure dust."
                 print e
@@ -326,6 +333,7 @@ if __name__=="__main__":
                 windspeed_time = time.time()
                 print 'Wind={0:0.1f} kph'.format(windspeed)
             except Exception as e:
+                Error_count += 1
                 print '---------------------------------------------'
                 print 'ERROR: Failed to detect windspeed'
                 print e
@@ -375,6 +383,7 @@ if __name__=="__main__":
                 print 'Wind direction = {0:0.1f}'.format(windval), winddir
                 winddir_time = time.time()
             except Exception as e:
+                Error_count += 1
                 print '---------------------------------------------'
                 print "ERROR: Failed to measure wind direction"
                 print e
