@@ -217,7 +217,7 @@ if __name__=="__main__":
             
         while time_later < timestamp + time_interval:
 
-            if Error_count > 10:
+            if Error_count > 3:
                 try:
                     # Send email to let human know I'm alive
                     sendemail(from_addr = 'oddweatherstation@gmail.com',
@@ -234,7 +234,8 @@ if __name__=="__main__":
                     erf.write('\n')
                     erf.write(str(e))
                     erf.write('\n')
-                    erf.close()    
+                    erf.close()
+                time.sleep(180) # pause for 3 min to give humans time to react    
                 os.system('sudo reboot')
             
             # Temperature and humidity:
