@@ -1,6 +1,6 @@
 Step 0: Enable SSH and SPI
 --------
-In settings enable SSH and SPI
+In settings enable SSH, SPI, and I2C
 Set hostname: sudo raspi-config
 sudo passwd pi
 set local region
@@ -18,7 +18,7 @@ edit /etc/dhcpcd.conf
 Add the following to the bottom:
 
 interface wlan0
-inform 192.168.1.110
+inform 192.168.1.110 # or whatever IP your router uses
 
 
 Step 3: install git
