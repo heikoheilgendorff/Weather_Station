@@ -199,7 +199,38 @@ if __name__=="__main__":
                 os.system('sudo reboot')
 
             # Pressure
-            
+            m_time = time.time()
+            print "The time is...:", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            print "Checking pressure (and bonus temperature)"
+            try:                
+                (btemp,press) = bmp.readBmp180()
+                
+                press_time = time.time()
+                print 'Temp={0:0.1f}*C  Pressure={1:0.1mbar}%'.format(btemp, press)
+            except Exception as e:
+                Error_count += 1
+                print '---------------------------------------------'
+                print 'ERROR: Failed to get pressure reading'
+                print e
+                print '---------------------------------------------'
+                erf = open(error_log_name,'a+')
+                etime = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                erf.write(etime)
+                erf.write('\n')
+                erf.write(str(e))
+                erf.write('\n')
+                erf.close()
+                if Press_flag == 0:
+                    try:
+                        sendemail(from_addr = 'oddweatherstation@gmail.com',
+                                  to_addr_list = ['heiko@opendata.durban'],
+                                  subject = 'Pressure sensor down',
+                                  message = 'Weather station '+myname+' barometer is not working',
+                                  login = 'oddweatherstation',
+                                  password = 'winteriscoming')
+                        Press_flag = 1
+                    except:
+                        print "ERROR: Failed to access Gmail"
 
 
                 
@@ -275,7 +306,7 @@ if __name__=="__main__":
                         
             print 'recording data'
             f = open(file_name,'a+')
-            line = str(temperature)+','+str(temp_time)+','+str(humidity)+','+str(temp_time)+','+str(pm10)+','+str(dust_time)+','+str(pm25)+','+str(dust_time)
+            line = str(press)+','+str(press_time)+','+str(temperature)+','+str(temp_time)+','+str(humidity)+','+str(temp_time)+','+str(pm10)+','+str(dust_time)+','+str(pm25)+','+str(dust_time)
             
             f.write(line)
             f.write('\n')
@@ -283,7 +314,7 @@ if __name__=="__main__":
             
             print 'talking to server'
             # post to the village
-            payload = {'temp': temperature,'temp_time':temp_time,'humid':humidity,'temp_time':temp_time,'pm_10':pm10,'dust_time':dust_time,'pm_25':pm25,'dust_time':dust_time,'ID':myname}
+            payload = {'pressure':press,'press_time':press_time,'temp': temperature,'temp_time':temp_time,'humid':humidity,'temp_time':temp_time,'pm_10':pm10,'dust_time':dust_time,'pm_25':pm25,'dust_time':dust_time,'ID':myname}
             headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
             try:
                 r = requests.post("http://citizen-sensors.herokuapp.com/ewok-village-5000", data=json.dumps(payload),headers=headers)
